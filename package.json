@@ -1,6 +1,6 @@
 {
   "name": "class-props-codemod",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "description": "Transform old-style assigned static properties to class static properties",
   "keywords": [
     "codemod",
