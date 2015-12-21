@@ -13,6 +13,9 @@ module.exports = (file, api, options) => {
   root
     .find(j.ClassDeclaration)
     .forEach(p => {
+      if (p.parent.value.type.startsWith('Export')) {
+        return;
+      }
       const className = p.value.id.name;
       const classIdxInParent = p.parentPath.value.indexOf(p.value);
       assert(classIdxInParent !== -1);
