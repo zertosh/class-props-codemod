@@ -4,16 +4,22 @@ const assert = require('assert');
 const classRe = /\bclass\b/;
 
 module.exports = (file, api, options) => {
+  const j = api.jscodeshift;
+  const matches = new Map();
+  let didChange = false;
+
   if (!classRe.test(file.source)) {
     return null;
   }
 
-  const j = api.jscodeshift;
-
-  const root = j(file.source);
-  const matches = new Map();
-
-  let didChange = false;
+  try {
+    var root = j(file.source);
+  } catch(err) {
+    if (!(err instanceof SyntaxError)) throw err;
+    console.log('SKIPPING: "%s" because %s', file.path, err);
+    api.stats('BROKEN_SYNTAX');
+    return null;
+  }
 
   root
     .find(j.ClassDeclaration)
