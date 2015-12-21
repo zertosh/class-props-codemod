@@ -27,6 +27,7 @@ function testTransform(t) {
 test('class-props-codemod', (t) => {
   const tt = testTransform(t);
   tt('simple');
+  tt('computed');
   tt('in-between');
   tt('best-position');
   t.done();
