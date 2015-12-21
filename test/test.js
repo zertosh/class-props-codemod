@@ -30,5 +30,6 @@ test('class-props-codemod', (t) => {
   tt('computed');
   tt('in-between');
   tt('best-position');
+  // tt('propTypes');
   t.done();
 });
