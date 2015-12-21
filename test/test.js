@@ -17,15 +17,16 @@ function testTransform(t) {
         path: originalPath,
         source: originalSource
       },
-      jscodeshift,
+      {jscodeshift},
       options || {}
     );
-    return t.equal(actualSource, expectedSource);
+    return t.equal(actualSource, expectedSource, name);
   }
 }
 
 test('class-props-codemod', (t) => {
   const tt = testTransform(t);
   tt('simple');
+  tt('in-between');
   t.done();
 });

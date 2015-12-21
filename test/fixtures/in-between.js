@@ -1,3 +1,3 @@
 class X {}
-// comment
+someOtherStatement;
 X.foo = 42;
