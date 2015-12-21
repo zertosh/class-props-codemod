@@ -105,8 +105,16 @@ module.exports = (file, api, options) => {
       if (stmt.value.comments) {
         newClassProp.comments = stmt.value.comments;
         if (options.flowfixme) {
-          newClassProp.comments = stmt.value.comments
-            .filter(cmt => !cmt.value.includes('$FlowFixMe(>=0.19.0)'));
+          newClassProp.comments = stmt.value.comments.filter(cmt => {
+            const hasFlowFixMe =
+              cmt.value.includes('$FlowFixMe(>=0.19') ||
+              cmt.value.includes('$FlowFixMe(>=0.20');
+            if (!hasFlowFixMe) return true;
+            console.log(
+              'WARNING: "%s" -> "%s" had a $FlowFixMe - re-check the output.',
+              file.path, className
+            );
+          });
         }
       }
       const classBody = classPath.get('body', 'body');
