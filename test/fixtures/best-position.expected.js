@@ -2,12 +2,14 @@ class X {
   // comment
   static foo = 42;
 
-  static bar = {};
+  method1() {}
 }
 
 class Y {
-  static baz = [];
+  static foo = 42;
 
   // comment
-  static quz = () => {};
+  static bar = {};
+
+  method2() {}
 }

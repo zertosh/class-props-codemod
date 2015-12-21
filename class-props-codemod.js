@@ -71,7 +71,13 @@ module.exports = (file, api, options) => {
         /*static*/ true
       );
       newClassProp.comments = stmt.value.comments;
-      classPath.get('body').get('body').unshift(newClassProp)
+      const classBody = classPath.get('body').get('body');
+      const bestPosition = getPositionForStaticProp(classBody.value);
+      if (bestPosition == null) {
+        classBody.push(newClassProp);
+      } else {
+        classBody.insertAt(bestPosition, newClassProp);
+      }
       stmt.prune();
       didChange = true;
     });
@@ -79,3 +85,18 @@ module.exports = (file, api, options) => {
 
   return didChange ? root.toSource() : file.source;
 };
+
+function getPositionForStaticProp(classBody) {
+  for (let i = 0; i < classBody.length; i++) {
+    const el = classBody[i];
+    if (el.type === 'MethodDefinition') {
+      return i;
+    }
+    if (el.type === 'ClassProperty') {
+      const nextEl = classBody[i + 1];
+      if (!nextEl || nextEl.type !== 'ClassProperty') {
+        return i + 1;
+      }
+    }
+  }
+}
