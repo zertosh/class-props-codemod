@@ -31,6 +31,7 @@ test('class-props-codemod', (t) => {
   tt('in-between');
   tt('best-position');
   tt('decorators');
+  tt('self-ref');
   // tt('propTypes');
   t.done();
 });

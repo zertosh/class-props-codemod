@@ -52,13 +52,14 @@ module.exports = (file, api, options) => {
   for (const kv of matches) {
     const classPath = kv[0];
     const assignedStaticProps = kv[1];
+    const className = classPath.value.id.name;
 
     const hasAnyComputedProp = assignedStaticProps
       .some(stmt => stmt.node.expression.left.computed);
     if (hasAnyComputedProp) {
       console.log(
         'SKIPPING: "%s" -> "%s" has a computed assigned static property.',
-        file.path, classPath.value.id.name
+        file.path, className
       );
       api.stats('HAS_STATIC_PROPERTY');
       continue;
@@ -71,9 +72,24 @@ module.exports = (file, api, options) => {
       console.log(
         'SKIPPING: "%s" -> "%s" may have side-effects between the class ' +
         'declaration and its assigned static properties.',
-        file.path, classPath.value.id.name
+        file.path, className
       );
       api.stats('MAY_HAVE_SIDE_EFFECT');
+      continue;
+    }
+
+    const hasSelfReference = assignedStaticProps.some(stmt =>
+      j(stmt.get('expression', 'right'))
+        .find(j.MemberExpression, {object: {name: className}})
+        .paths()
+        .some(p => p.scope === stmt.scope)
+    );
+    if (hasSelfReference) {
+      console.log(
+        'SKIPPING: "%s" -> "%s" references itself',
+        file.path, className
+      );
+      api.stats('HAS_SELF_REFERENCE');
       continue;
     }
 
@@ -87,7 +103,7 @@ module.exports = (file, api, options) => {
         /*static*/ true
       );
       newClassProp.comments = stmt.value.comments;
-      const classBody = classPath.get('body').get('body');
+      const classBody = classPath.get('body', 'body');
       const bestPosition = getPositionForStaticProp(classBody.value);
       if (bestPosition == null) {
         classBody.push(newClassProp);
@@ -114,7 +130,7 @@ module.exports = (file, api, options) => {
       if (hasDecorators) {
         console.log(
           'WARNING: "%s" -> "%s" has decorators - re-check the output.',
-          file.path, classPath.value.id.name
+          file.path, className
         );
         api.stats('HAS_DECORATORS');
       }
