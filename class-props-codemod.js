@@ -89,6 +89,27 @@ module.exports = (file, api, options) => {
       stmt.prune();
       didChange = true;
     });
+
+    if (didChange) {
+      let hasDecorators = false;
+      // For some reason Recast isn't printing decorators
+      classPath.value.body.body.forEach(classEl => {
+        if (classEl.decorators) {
+          hasDecorators = true;
+          classEl.loc.lines = false;
+        }
+      });
+      if (classPath.value.decorators) {
+        hasDecorators = true;
+        classPath.value.loc.lines = null;
+      }
+      if (hasDecorators) {
+        console.log(
+          'WARNING: "%s" -> "%s" has decorators - re-check the output.',
+          file.path, classPath.value.id.name
+        );
+      }
+    }
   }
 
   return didChange ? root.toSource() : file.source;
