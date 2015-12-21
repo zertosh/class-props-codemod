@@ -102,7 +102,13 @@ module.exports = (file, api, options) => {
         /*typeAnnotation*/ null,
         /*static*/ true
       );
-      newClassProp.comments = stmt.value.comments;
+      if (stmt.value.comments) {
+        newClassProp.comments = stmt.value.comments;
+        if (options.flowfixme) {
+          newClassProp.comments = stmt.value.comments
+            .filter(cmt => !cmt.value.includes('$FlowFixMe(>=0.19.0)'));
+        }
+      }
       const classBody = classPath.get('body', 'body');
       const bestPosition = getPositionForStaticProp(classBody.value);
       if (bestPosition == null) {

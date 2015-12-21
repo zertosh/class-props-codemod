@@ -32,6 +32,7 @@ test('class-props-codemod', (t) => {
   tt('best-position');
   tt('decorators');
   tt('self-ref');
+  tt('flowfixme', {flowfixme: true});
   // tt('propTypes');
   t.done();
 });
