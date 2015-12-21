@@ -1,8 +1,13 @@
 'use strict';
 
 const assert = require('assert');
+const classRe = /\bclass\b/;
 
 module.exports = (file, api, options) => {
+  if (!classRe.test(file.source)) {
+    return file.source;
+  }
+
   const j = api.jscodeshift;
 
   const root = j(file.source);
