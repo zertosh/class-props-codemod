@@ -17,7 +17,7 @@ function testTransform(t) {
         path: originalPath,
         source: originalSource
       },
-      {jscodeshift},
+      {jscodeshift, stats: () => {}},
       options || {}
     );
     return t.equal(actualSource, expectedSource, name);
