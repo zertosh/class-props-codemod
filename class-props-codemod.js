@@ -5,7 +5,7 @@ const classRe = /\bclass\b/;
 
 module.exports = (file, api, options) => {
   if (!classRe.test(file.source)) {
-    return file.source;
+    return null;
   }
 
   const j = api.jscodeshift;
@@ -54,6 +54,7 @@ module.exports = (file, api, options) => {
         'SKIPPING: "%s" -> "%s" has a computed assigned static property.',
         file.path, classPath.value.id.name
       );
+      api.stats('HAS_STATIC_PROPERTY');
       continue;
     }
 
@@ -66,6 +67,7 @@ module.exports = (file, api, options) => {
         'declaration and its assigned static properties.',
         file.path, classPath.value.id.name
       );
+      api.stats('MAY_HAVE_SIDE_EFFECT');
       continue;
     }
 
@@ -108,6 +110,7 @@ module.exports = (file, api, options) => {
           'WARNING: "%s" -> "%s" has decorators - re-check the output.',
           file.path, classPath.value.id.name
         );
+        api.stats('HAS_DECORATORS');
       }
     }
   }
