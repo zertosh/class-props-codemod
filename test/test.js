@@ -33,6 +33,7 @@ test('class-props-codemod', (t) => {
   tt('decorators');
   tt('self-ref');
   tt('flowfixme', {flowfixme: true});
+  tt('duplicate');
   // tt('propTypes');
   t.done();
 });

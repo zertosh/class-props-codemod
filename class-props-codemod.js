@@ -93,9 +93,58 @@ module.exports = (file, api, options) => {
       continue;
     }
 
+    const hasDuplicateWithValue = assignedStaticProps.some(stmt => {
+      const staticKeyName = stmt.value.expression.left.property.name;
+      return classPath.value.body.body.some(classEl => {
+        if (classEl.type === 'ClassProperty' &&
+            classEl.static === true &&
+            classEl.value !== null &&
+            classEl.key.type === 'Identifier' &&
+            classEl.key.name === staticKeyName) {
+          return true;
+        }
+        if (classEl.type === 'MethodDefinition' &&
+            classEl.static === true &&
+            classEl.key.type === 'Identifier' &&
+            classEl.key.name === staticKeyName) {
+          return true;
+        }
+      });
+    });
+    if (hasDuplicateWithValue) {
+      console.log(
+        'SKIPPING: "%s" -> "%s" has existing static key with value',
+        file.path, className
+      );
+      api.stats('HAS_DUPLICATE_KEY');
+      continue;
+    }
+
     assignedStaticProps.forEach(stmt => {
       const staticKey = stmt.value.expression.left.property;
       const staticValue = stmt.value.expression.right;
+
+      for (const classEl of classPath.value.body.body) {
+        if (classEl.type === 'ClassProperty' &&
+            classEl.static === true &&
+            classEl.key.type === 'Identifier' &&
+            classEl.key.name === staticKey.name) {
+          classEl.value = staticValue;
+          if (stmt.value.comments) {
+            if (!classEl.comments) classEl.comments = [];
+            classEl.comments = classEl.comments.concat(stmt.value.comments);
+          }
+          stmt.prune();
+          didChange = true;
+          console.log(
+            'WARNING: "%s" -> "%s" had a pre-existing empty prop - re-check the output.',
+            file.path, className
+          );
+          api.stats('HAS_PRE_EXISTING_KEY');
+          return;
+        }
+      }
+
       const newClassProp = j.classProperty(
         staticKey,
         staticValue,

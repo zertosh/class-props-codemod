@@ -54,4 +54,20 @@ class X {
       X.bar = () => X.baz();
     ```
 
+  * If a static property already exists with a name and a value, then it'll skip that class. If the static property exists, but it doesn't have a value, it will get transformed. Example:
+
+    ```js
+      // This class will NOT be transformed
+      class X {
+        static foo = 43;
+      }
+      X.foo = 42;
+
+      // This class WILL BE transformed
+      class X {
+        static foo: number;
+      }
+      X.foo = 42;
+    ```
+
 * Newly created static properties are added to the class body in the order in which they're found. Either immediately before the first method definition or immediate after the first class property.
